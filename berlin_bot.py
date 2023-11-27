@@ -2,6 +2,7 @@ import time
 import os
 import logging
 from platform import system
+from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -38,7 +39,7 @@ class WebDriver:
 
 class BerlinBot:
     def __init__(self):
-        self.wait_time = 20
+        self.wait_time = 60
         self._sound_file = os.path.join(os.getcwd(), "alarm.wav")
         self._error_message = """Für die gewählte Dienstleistung sind aktuell keine Termine frei! Bitte"""
 
@@ -55,37 +56,49 @@ class BerlinBot:
         driver.find_element(By.XPATH, '//*[@id="xi-div-1"]/div[4]/label[2]/p').click()
         time.sleep(1)
         driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
-        time.sleep(5)
+        time.sleep(30)
 
     @staticmethod
     def enter_form(driver: webdriver.Chrome):
         logging.info("Fill out form")
         # select china
+        sleep(1)
         s = Select(driver.find_element(By.ID, 'xi-sel-400'))
         s.select_by_visible_text("China")
         # eine person
+        sleep(1)
         s = Select(driver.find_element(By.ID, 'xi-sel-422'))
         s.select_by_visible_text("eine Person")
+        sleep(1)
         # no family
         s = Select(driver.find_element(By.ID, 'xi-sel-427' ))
         s.select_by_visible_text("nein")
-        time.sleep(5)
+        time.sleep(10)
 
         # extend stay
-        driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[2]/label/p').click()
-        time.sleep(2)
+        # driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[2]/label/p').click()
+        driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[1]/label/p').click()
 
+        time.sleep(5)
         # click on study group
-        driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[1]/label/p').click()
+        # driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[1]/label/p').click()
+        # driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[8]/div/div[2]/label/p').click()
+
+        # driver.find_element(By.XPATH, '//*[@id="inner-479-0-1"]/div/div[1]/label/p').click()
+        driver.find_element(By.XPATH, '//*[@id="inner-479-0-1"]/div/div[3]/label/p').click()
+
+
         time.sleep(2)
 
         # b/c of stufy
-        driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[2]/div/div[5]/label').click()
-        time.sleep(4)
+        driver.find_element(By.XPATH, '//*[@id="inner-479-0-1"]/div/div[4]/div/div[5]/label').click()
+        # driver.find_element(By.XPATH, '//*[@id="inner-479-0-1"]/div/div[3]/div/div[5]/label').click()
+
+        time.sleep(10)
 
         # submit form
         driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
-        time.sleep(10)
+        time.sleep(30)
     
     def _success(self):
         logging.info("!!!SUCCESS - do not close the window!!!!")
@@ -103,7 +116,7 @@ class BerlinBot:
             self.enter_form(driver)
 
             # retry submit
-            for _ in range(10):
+            for _ in range(5):
                 if not self._error_message in driver.page_source:
                     self._success()
                 logging.info("Retry submitting form")
@@ -130,25 +143,29 @@ class BerlinBot:
         http://stackoverflow.com/a/34568298/901641
         I never would have tried using AppKit.NSSound without seeing his code.
         """
-        from AppKit import NSSound
-        from Foundation import NSURL
-        from time import sleep
+        # from AppKit import NSSound
+        # from Foundation import NSURL
+    
 
         logging.info("Play sound")
-        if "://" not in sound:
-            if not sound.startswith("/"):
-                from os import getcwd
+        # if "://" not in sound:
+        #     if not sound.startswith("/"):
+        #         from os import getcwd
 
-                sound = getcwd() + "/" + sound
-            sound = "file://" + sound
-        url = NSURL.URLWithString_(sound)
-        nssound = NSSound.alloc().initWithContentsOfURL_byReference_(url, True)
-        if not nssound:
-            raise IOError("Unable to load sound named: " + sound)
-        nssound.play()
+        #         sound = getcwd() + "/" + sound
+        #     sound = "file://" + sound
+        # url = NSURL.URLWithString_(sound)
+        # nssound = NSSound.alloc().initWithContentsOfURL_byReference_(url, True)
+        # if not nssound:
+        #     raise IOError("Unable to load sound named: " + sound)
+        # nssound.play()
+        voice = "Tingting"
+        msg = "有预约啦，快抢！"
+        os.system(f'say -v {voice} {msg}')
 
         if block:
-            sleep(nssound.duration())
+            # sleep(nssound.duration())
+            sleep(3)
 
 if __name__ == "__main__":
     BerlinBot().run_loop()
